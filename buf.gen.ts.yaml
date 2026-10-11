@@ -1,0 +1,14 @@
+# TypeScript / Node.js stubs via protobuf-es v2 (used by Connect-ES v2).
+# Emits plain .js + .d.ts so consumers never have to compile TypeScript.
+version: v2
+clean: true
+inputs:
+  - directory: proto
+plugins:
+  - local: protoc-gen-es
+    out: gen/es
+    # Also emit google/api/*_pb.js, which the generated code imports.
+    include_imports: true
+    opt:
+      - target=js+dts
+      - import_extension=js

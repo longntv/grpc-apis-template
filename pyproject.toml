@@ -1,0 +1,30 @@
+[build-system]
+requires = ["setuptools>=69"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "longntv-grpc-apis-template"
+version = "1.0.0"
+description = "Generated protobuf + gRPC stubs for longntv APIs"
+requires-python = ">=3.9"
+license = { text = "MIT" }
+readme = "README.md"
+# Lower bounds must match the generator (GRPCIO_TOOLS_VERSION in Dockerfile).
+dependencies = [
+  "protobuf>=5.29.0,<6",
+  "grpcio>=1.70.0",
+  # Runtime for google/api/*_pb2 (resource, field_behavior, http annotations).
+  "googleapis-common-protos>=1.66.0,<2",
+]
+
+[project.urls]
+Repository = "https://github.com/longntv/grpc-apis-template"
+
+[tool.setuptools.packages.find]
+where = ["gen/python"]
+# The top-level package (the org name) is an implicit namespace package, so
+# several API repos of the same org can be installed side by side.
+namespaces = true
+
+[tool.setuptools.package-data]
+"*" = ["*.pyi", "py.typed"]

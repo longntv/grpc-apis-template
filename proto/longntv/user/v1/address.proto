@@ -1,0 +1,46 @@
+syntax = "proto3";
+
+package longntv.user.v1;
+
+import "google/api/field_behavior.proto";
+import "google/api/resource.proto";
+import "google/protobuf/timestamp.proto";
+
+option go_package = "github.com/longntv/grpc-apis-template/gen/go/longntv/user/v1;userv1";
+
+// An Address is a postal address owned by a User. It is a child resource:
+// its name is nested under the parent user's name (AIP-122), e.g.
+// `users/alice/addresses/home`.
+message Address {
+  option (google.api.resource) = {
+    type: "user.longntv.github.io/Address"
+    pattern: "users/{user}/addresses/{address}"
+    singular: "address"
+    plural: "addresses"
+  };
+
+  // Identifier. Resource name of the address.
+  // Format: `users/{user}/addresses/{address}`.
+  string name = 1 [(google.api.field_behavior) = IDENTIFIER];
+
+  // Optional. Label shown to the user, e.g. "Home" or "Office".
+  string display_name = 2 [(google.api.field_behavior) = OPTIONAL];
+
+  // Required. Street lines, in the order written on an envelope.
+  repeated string address_lines = 3 [(google.api.field_behavior) = REQUIRED];
+
+  // Optional. City or town.
+  string locality = 4 [(google.api.field_behavior) = OPTIONAL];
+
+  // Required. CLDR region code of the country, e.g. "VN" or "US".
+  string region_code = 5 [(google.api.field_behavior) = REQUIRED];
+
+  // Optional. Postal code.
+  string postal_code = 6 [(google.api.field_behavior) = OPTIONAL];
+
+  // Output only. Time the address was created.
+  google.protobuf.Timestamp create_time = 7 [(google.api.field_behavior) = OUTPUT_ONLY];
+
+  // Output only. Time the address was last modified.
+  google.protobuf.Timestamp update_time = 8 [(google.api.field_behavior) = OUTPUT_ONLY];
+}

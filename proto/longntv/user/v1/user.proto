@@ -1,0 +1,48 @@
+syntax = "proto3";
+
+package longntv.user.v1;
+
+import "google/api/field_behavior.proto";
+import "google/api/resource.proto";
+import "google/protobuf/timestamp.proto";
+
+option go_package = "github.com/longntv/grpc-apis-template/gen/go/longntv/user/v1;userv1";
+
+// A User is an account managed by the user service.
+message User {
+  option (google.api.resource) = {
+    type: "user.longntv.github.io/User"
+    pattern: "users/{user}"
+    singular: "user"
+    plural: "users"
+  };
+
+  // Lifecycle state of a User. Managed by the server (AIP-216).
+  enum State {
+    // Default value. Never returned by the server.
+    STATE_UNSPECIFIED = 0;
+    // The user can sign in and use the system.
+    ACTIVE = 1;
+    // The user is blocked from signing in.
+    SUSPENDED = 2;
+  }
+
+  // Identifier. Resource name of the user (AIP-122).
+  // Format: `users/{user}`, e.g. `users/alice`.
+  string name = 1 [(google.api.field_behavior) = IDENTIFIER];
+
+  // Required. Unique, case-insensitive email address used to sign in.
+  string email = 2 [(google.api.field_behavior) = REQUIRED];
+
+  // Required. Human-readable name shown in UIs.
+  string display_name = 3 [(google.api.field_behavior) = REQUIRED];
+
+  // Output only. Lifecycle state of the user.
+  State state = 4 [(google.api.field_behavior) = OUTPUT_ONLY];
+
+  // Output only. Time the user was created (AIP-142, AIP-148).
+  google.protobuf.Timestamp create_time = 5 [(google.api.field_behavior) = OUTPUT_ONLY];
+
+  // Output only. Time the user was last modified.
+  google.protobuf.Timestamp update_time = 6 [(google.api.field_behavior) = OUTPUT_ONLY];
+}

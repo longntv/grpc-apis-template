@@ -1,0 +1,236 @@
+syntax = "proto3";
+
+package longntv.user.v1;
+
+import "google/api/annotations.proto";
+import "google/api/client.proto";
+import "google/api/field_behavior.proto";
+import "google/api/resource.proto";
+import "google/protobuf/empty.proto";
+import "google/protobuf/field_mask.proto";
+import "longntv/user/v1/address.proto";
+import "longntv/user/v1/user.proto";
+
+option go_package = "github.com/longntv/grpc-apis-template/gen/go/longntv/user/v1;userv1";
+
+// UserService manages User resources and their child Address resources.
+service UserService {
+  // Gets a user (AIP-131).
+  // Errors: NOT_FOUND if the user does not exist.
+  rpc GetUser(GetUserRequest) returns (User) {
+    option (google.api.http) = {get: "/v1/{name=users/*}"};
+    option (google.api.method_signature) = "name";
+  }
+
+  // Lists users ordered by create_time descending (AIP-132).
+  rpc ListUsers(ListUsersRequest) returns (ListUsersResponse) {
+    option (google.api.http) = {get: "/v1/users"};
+  }
+
+  // Creates a user (AIP-133).
+  // Errors: ALREADY_EXISTS if the email or user_id is taken.
+  rpc CreateUser(CreateUserRequest) returns (User) {
+    option (google.api.http) = {
+      post: "/v1/users"
+      body: "user"
+    };
+    option (google.api.method_signature) = "user,user_id";
+  }
+
+  // Updates a user; only paths in update_mask are applied (AIP-134).
+  // Errors: NOT_FOUND if the user does not exist.
+  rpc UpdateUser(UpdateUserRequest) returns (User) {
+    option (google.api.http) = {
+      patch: "/v1/{user.name=users/*}"
+      body: "user"
+    };
+    option (google.api.method_signature) = "user,update_mask";
+  }
+
+  // Deletes a user (AIP-135).
+  // Errors: NOT_FOUND if the user does not exist, FAILED_PRECONDITION if the
+  // user still has addresses and `force` is false.
+  rpc DeleteUser(DeleteUserRequest) returns (google.protobuf.Empty) {
+    option (google.api.http) = {delete: "/v1/{name=users/*}"};
+    option (google.api.method_signature) = "name";
+  }
+
+  // Gets an address (AIP-131).
+  // Errors: NOT_FOUND if the address does not exist.
+  rpc GetAddress(GetAddressRequest) returns (Address) {
+    option (google.api.http) = {get: "/v1/{name=users/*/addresses/*}"};
+    option (google.api.method_signature) = "name";
+  }
+
+  // Lists the addresses of a user (AIP-132).
+  // Errors: NOT_FOUND if the parent user does not exist.
+  rpc ListAddresses(ListAddressesRequest) returns (ListAddressesResponse) {
+    option (google.api.http) = {get: "/v1/{parent=users/*}/addresses"};
+    option (google.api.method_signature) = "parent";
+  }
+
+  // Creates an address under a user (AIP-133).
+  // Errors: NOT_FOUND if the parent user does not exist, ALREADY_EXISTS if
+  // address_id is taken.
+  rpc CreateAddress(CreateAddressRequest) returns (Address) {
+    option (google.api.http) = {
+      post: "/v1/{parent=users/*}/addresses"
+      body: "address"
+    };
+    option (google.api.method_signature) = "parent,address,address_id";
+  }
+
+  // Updates an address; only paths in update_mask are applied (AIP-134).
+  // Errors: NOT_FOUND if the address does not exist.
+  rpc UpdateAddress(UpdateAddressRequest) returns (Address) {
+    option (google.api.http) = {
+      patch: "/v1/{address.name=users/*/addresses/*}"
+      body: "address"
+    };
+    option (google.api.method_signature) = "address,update_mask";
+  }
+
+  // Deletes an address (AIP-135).
+  // Errors: NOT_FOUND if the address does not exist.
+  rpc DeleteAddress(DeleteAddressRequest) returns (google.protobuf.Empty) {
+    option (google.api.http) = {delete: "/v1/{name=users/*/addresses/*}"};
+    option (google.api.method_signature) = "name";
+  }
+}
+
+// Request message for UserService.GetUser.
+message GetUserRequest {
+  // Required. Resource name of the user. Format: `users/{user}`.
+  string name = 1 [
+    (google.api.field_behavior) = REQUIRED,
+    (google.api.resource_reference) = {type: "user.longntv.github.io/User"}
+  ];
+}
+
+// Request message for UserService.ListUsers.
+message ListUsersRequest {
+  // Optional. Maximum number of users to return. The server uses 50 when
+  // unset and caps the value at 1000.
+  int32 page_size = 1 [(google.api.field_behavior) = OPTIONAL];
+
+  // Optional. Token from a previous ListUsersResponse.next_page_token.
+  // All other request fields must match the call that produced the token.
+  string page_token = 2 [(google.api.field_behavior) = OPTIONAL];
+}
+
+// Response message for UserService.ListUsers.
+message ListUsersResponse {
+  // The page of users.
+  repeated User users = 1;
+
+  // Token for the next page; empty when there are no more results.
+  string next_page_token = 2;
+}
+
+// Request message for UserService.CreateUser.
+message CreateUserRequest {
+  // Required. The user to create. Output-only fields are ignored.
+  User user = 1 [(google.api.field_behavior) = REQUIRED];
+
+  // Optional. Final segment of the resource name (`users/{user_id}`).
+  // Must match `[a-z]([a-z0-9-]{0,61}[a-z0-9])?` (RFC 1034, AIP-122).
+  // The server generates one (e.g. a UUID) when empty.
+  string user_id = 2 [(google.api.field_behavior) = OPTIONAL];
+}
+
+// Request message for UserService.UpdateUser.
+message UpdateUserRequest {
+  // Required. The user to update; user.name identifies the target.
+  User user = 1 [(google.api.field_behavior) = REQUIRED];
+
+  // Optional. Fields to update, e.g. `display_name`. When omitted, every
+  // field populated in `user` is updated. `*` means full replacement.
+  google.protobuf.FieldMask update_mask = 2 [(google.api.field_behavior) = OPTIONAL];
+}
+
+// Request message for UserService.DeleteUser.
+message DeleteUserRequest {
+  // Required. Resource name of the user. Format: `users/{user}`.
+  string name = 1 [
+    (google.api.field_behavior) = REQUIRED,
+    (google.api.resource_reference) = {type: "user.longntv.github.io/User"}
+  ];
+
+  // Optional. If true, also deletes the user's addresses. If false and the
+  // user has addresses, the request fails with FAILED_PRECONDITION.
+  bool force = 2 [(google.api.field_behavior) = OPTIONAL];
+}
+
+// Request message for UserService.GetAddress.
+message GetAddressRequest {
+  // Required. Resource name of the address.
+  // Format: `users/{user}/addresses/{address}`.
+  string name = 1 [
+    (google.api.field_behavior) = REQUIRED,
+    (google.api.resource_reference) = {type: "user.longntv.github.io/Address"}
+  ];
+}
+
+// Request message for UserService.ListAddresses.
+message ListAddressesRequest {
+  // Required. The user owning the addresses. Format: `users/{user}`.
+  // Use `users/-` to list addresses across all users (AIP-159).
+  string parent = 1 [
+    (google.api.field_behavior) = REQUIRED,
+    (google.api.resource_reference) = {child_type: "user.longntv.github.io/Address"}
+  ];
+
+  // Optional. Maximum number of addresses to return. The server uses 50 when
+  // unset and caps the value at 1000.
+  int32 page_size = 2 [(google.api.field_behavior) = OPTIONAL];
+
+  // Optional. Token from a previous ListAddressesResponse.next_page_token.
+  string page_token = 3 [(google.api.field_behavior) = OPTIONAL];
+}
+
+// Response message for UserService.ListAddresses.
+message ListAddressesResponse {
+  // The page of addresses.
+  repeated Address addresses = 1;
+
+  // Token for the next page; empty when there are no more results.
+  string next_page_token = 2;
+}
+
+// Request message for UserService.CreateAddress.
+message CreateAddressRequest {
+  // Required. The user to create the address under. Format: `users/{user}`.
+  string parent = 1 [
+    (google.api.field_behavior) = REQUIRED,
+    (google.api.resource_reference) = {child_type: "user.longntv.github.io/Address"}
+  ];
+
+  // Required. The address to create. Output-only fields are ignored.
+  Address address = 2 [(google.api.field_behavior) = REQUIRED];
+
+  // Optional. Final segment of the resource name
+  // (`users/{user}/addresses/{address_id}`), e.g. `home`.
+  // Must match `[a-z]([a-z0-9-]{0,61}[a-z0-9])?` (RFC 1034, AIP-122).
+  // The server generates one when empty.
+  string address_id = 3 [(google.api.field_behavior) = OPTIONAL];
+}
+
+// Request message for UserService.UpdateAddress.
+message UpdateAddressRequest {
+  // Required. The address to update; address.name identifies the target.
+  Address address = 1 [(google.api.field_behavior) = REQUIRED];
+
+  // Optional. Fields to update. When omitted, every field populated in
+  // `address` is updated. `*` means full replacement.
+  google.protobuf.FieldMask update_mask = 2 [(google.api.field_behavior) = OPTIONAL];
+}
+
+// Request message for UserService.DeleteAddress.
+message DeleteAddressRequest {
+  // Required. Resource name of the address.
+  // Format: `users/{user}/addresses/{address}`.
+  string name = 1 [
+    (google.api.field_behavior) = REQUIRED,
+    (google.api.resource_reference) = {type: "user.longntv.github.io/Address"}
+  ];
+}

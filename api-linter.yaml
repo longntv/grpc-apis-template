@@ -1,0 +1,10 @@
+# Google api-linter config: https://linter.aip.dev/configuration
+# Disable a rule only with a written justification.
+- included_paths:
+    - "**/*.proto"
+  disabled_rules:
+    # AIP-191 Java options: this repo does not generate Java stubs.
+    # Remove these lines if Java is added to the toolchain.
+    - core::0191::java-package
+    - core::0191::java-outer-classname
+    - core::0191::java-multiple-files

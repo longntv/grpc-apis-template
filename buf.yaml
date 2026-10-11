@@ -1,0 +1,35 @@
+# Buf workspace config: https://buf.build/docs/configuration/v2/buf-yaml
+#
+# Style guide: Google AIPs (https://google.aip.dev). Two linters run in CI:
+#   - buf lint   : generic protobuf hygiene (this file)
+#   - api-linter : AIP semantics such as resource names (AIP-122), standard
+#                  methods (AIP-131..135) and field behavior (AIP-203).
+#                  Config: api-linter.yaml
+version: v2
+modules:
+  - path: proto
+deps:
+  # google/api/{annotations,client,field_behavior,resource}.proto
+  - buf.build/googleapis/googleapis
+lint:
+  use:
+    - STANDARD
+    # Every message, field, enum, value, service and RPC must be documented.
+    - COMMENTS
+  except:
+    # AIP-131/133/134: Get/Create/Update return the resource itself (User),
+    # AIP-135: Delete returns google.protobuf.Empty. These two buf rules
+    # require a unique XxxResponse per RPC, which contradicts the AIPs.
+    - RPC_REQUEST_RESPONSE_UNIQUE
+    - RPC_RESPONSE_STANDARD_NAME
+    # AIP-126: values of an enum nested in a message are not prefixed with the
+    # enum name (User.State.ACTIVE, not User.State.STATE_ACTIVE).
+    - ENUM_VALUE_PREFIX
+  enum_zero_value_suffix: _UNSPECIFIED
+  service_suffix: Service
+  # Forbid `// buf:lint:ignore` escape hatches inside .proto files.
+  disallow_comment_ignores: true
+breaking:
+  use:
+    # Strictest category: source + wire compatibility for every language.
+    - FILE

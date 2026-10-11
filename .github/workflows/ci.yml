@@ -1,0 +1,65 @@
+name: proto
+
+on:
+  push:
+    branches: [main]
+    tags: ["v*"]
+  pull_request:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0 # buf breaking compares against the base branch
+      - name: Build toolchain image
+        run: make init
+      - name: Format, lint (buf + api-linter), generated code up to date
+        run: make verify
+      - name: Breaking change check
+        if: github.event_name == 'pull_request'
+        env:
+          BASE_REF: ${{ github.base_ref }}
+        run: |
+          git fetch --no-tags origin "$BASE_REF:$BASE_REF"
+          make breaking BREAKING_AGAINST=".git#branch=$BASE_REF"
+
+  # Install the committed stubs exactly like a consuming service would.
+  consumers:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-go@v5
+        with:
+          go-version: stable
+      - name: Go module builds and go.mod is tidy
+        run: go build ./... && go vet ./... && go mod tidy -diff
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.9" # lowest supported (pyproject requires-python)
+      - name: Python package installs and imports every module
+        run: |
+          python -m pip install .
+          cd "$RUNNER_TEMP" # import the installed package, not the checkout
+          find "$GITHUB_WORKSPACE/gen/python" -name '*.py' ! -name '__init__.py' \
+            | sed "s|$GITHUB_WORKSPACE/gen/python/||; s|\.py$||; s|/|.|g" \
+            | xargs -I{} python -c "import {}"
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - name: npm package installs and imports every module
+        run: |
+          npm pack --pack-destination "$RUNNER_TEMP"
+          name="$(node -p 'require("./package.json").name')"
+          mods="$(cd gen/es && find . -name '*.js' | sed 's|^\./||; s|\.js$||')"
+          cd "$RUNNER_TEMP" && npm init -y >/dev/null
+          npm install ./*.tgz @bufbuild/protobuf
+          for m in $mods; do node --input-type=module -e "await import('${name}/${m}')"; done
