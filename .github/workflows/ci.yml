@@ -52,7 +52,7 @@ jobs:
           find "$GITHUB_WORKSPACE/gen/python" -name '*.py' ! -name '__init__.py' \
             | sed "s|$GITHUB_WORKSPACE/gen/python/||; s|\.py$||; s|/|.|g" \
             | xargs -I{} python -c "import {}"
-      - uses: actions/setup-node@v4
+      - uses: actions/setup-node@v7
         with:
           node-version: 22
       - name: npm package installs and imports every module
