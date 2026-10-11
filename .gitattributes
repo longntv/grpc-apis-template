@@ -1,0 +1,7 @@
+# LF everywhere: CRLF breaks the shell scripts in the container and makes
+# `make verify` report every generated file as changed on Windows clones.
+* text=auto eol=lf
+
+# Collapse generated code in GitHub diffs and exclude it from language stats.
+gen/** linguist-generated=true
+buf.lock linguist-generated=true

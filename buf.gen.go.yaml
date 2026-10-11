@@ -1,0 +1,19 @@
+# Go stubs: protobuf messages + gRPC client/server.
+# Managed mode sets go_package for every file, so .proto files don't need it:
+# package longntv.user.v1 -> github.com/longntv/grpc-apis-template/gen/go/longntv/user/v1
+version: v2
+clean: true
+managed:
+  enabled: true
+  override:
+    - file_option: go_package_prefix
+      value: github.com/longntv/grpc-apis-template/gen/go
+inputs:
+  - directory: proto
+plugins:
+  - local: protoc-gen-go
+    out: gen/go
+    opt: paths=source_relative
+  - local: protoc-gen-go-grpc
+    out: gen/go
+    opt: paths=source_relative

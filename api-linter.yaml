@@ -1,0 +1,37 @@
+# Google api-linter config: https://linter.aip.dev/configuration
+#
+# We follow the AIP *naming and method* conventions (resource `name` like
+# `users/alice`, Get/List/Create/Update/Delete shapes, `*_time` fields,
+# pagination, ...) but deliberately skip the google.api.* annotations
+# (resource, field_behavior, http, method_signature) to keep protos small.
+# The rules below only check those annotations, so they are disabled.
+- included_paths:
+    - "**/*.proto"
+  disabled_rules:
+    # No google.api.resource / resource_reference annotations.
+    - core::0123::resource-annotation
+    - core::0131::request-name-reference
+    - core::0132::request-parent-reference
+    - core::0133::request-parent-reference
+    - core::0135::request-name-reference
+    # No google.api.field_behavior annotations (documented in comments instead).
+    - core::0203
+    - core::0131::request-name-behavior
+    - core::0132::request-parent-behavior
+    - core::0133::request-parent-behavior
+    - core::0133::request-resource-behavior
+    - core::0134::update-mask-optional-behavior
+    - core::0135::request-name-behavior
+    - core::0216::state-field-output-only
+    # No google.api.http (service-to-service gRPC only) or method_signature
+    # (only used by Google-style generated client libraries).
+    - core::0127
+    - core::0131::method-signature
+    - core::0132::method-signature
+    - core::0133::method-signature
+    - core::0134::method-signature
+    - core::0135::method-signature
+    # Java options: this repo does not generate Java stubs.
+    - core::0191::java-package
+    - core::0191::java-outer-classname
+    - core::0191::java-multiple-files

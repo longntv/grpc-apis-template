@@ -1,0 +1,9 @@
+# gen/ is intentionally committed so consumers never run codegen.
+node_modules/
+__pycache__/
+*.egg-info/
+build/
+dist/
+.venv/
+.DS_Store
+.cache/

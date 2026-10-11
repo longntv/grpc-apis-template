@@ -1,0 +1,29 @@
+syntax = "proto3";
+
+package longntv.user.v1;
+
+import "google/protobuf/timestamp.proto";
+
+// An Address is a postal address owned by a User.
+message Address {
+  // Resource name, e.g. `users/alice/addresses/home`. Set by the server.
+  string name = 1;
+  // Label shown to the user, e.g. "Home".
+  // @gotags: validate:"max=50"
+  string display_name = 2;
+  // Street lines, in the order written on an envelope.
+  // @gotags: validate:"required,min=1,max=5,dive,required,max=200"
+  repeated string address_lines = 3;
+  // City or town.
+  string locality = 4;
+  // CLDR country code, e.g. "VN".
+  // @gotags: validate:"required,iso3166_1_alpha2"
+  string region_code = 5;
+  // Postal code.
+  // @gotags: validate:"max=20"
+  string postal_code = 6;
+  // Time the address was created. Set by the server.
+  google.protobuf.Timestamp create_time = 7;
+  // Time the address was last modified. Set by the server.
+  google.protobuf.Timestamp update_time = 8;
+}

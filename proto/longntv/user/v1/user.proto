@@ -1,0 +1,33 @@
+syntax = "proto3";
+
+package longntv.user.v1;
+
+import "google/protobuf/timestamp.proto";
+
+// A User is an account managed by the user service.
+message User {
+  // Lifecycle state of a User.
+  enum State {
+    // Default value. Never returned by the server.
+    STATE_UNSPECIFIED = 0;
+    // The user can sign in and use the system.
+    ACTIVE = 1;
+    // The user is blocked from signing in.
+    SUSPENDED = 2;
+  }
+
+  // Resource name, e.g. `users/alice`. Set by the server.
+  string name = 1;
+  // Unique email address used to sign in.
+  // @gotags: validate:"required,email,max=254"
+  string email = 2;
+  // Human-readable name shown in UIs.
+  // @gotags: validate:"required,max=100"
+  string display_name = 3;
+  // Lifecycle state. Set by the server.
+  State state = 4;
+  // Time the user was created. Set by the server.
+  google.protobuf.Timestamp create_time = 5;
+  // Time the user was last modified. Set by the server.
+  google.protobuf.Timestamp update_time = 6;
+}
